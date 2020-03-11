@@ -2,7 +2,7 @@
 #include <stdlib.h>
 
 #include "global.h"
-#include "chip8.c"
+#include "chip8.h"
 
 int
 main(int argc, char* argv[]) {
@@ -10,7 +10,11 @@ main(int argc, char* argv[]) {
     printf("Sucessfully Initialized CHIP8 Struct\n");
 
     chip8_loadgame(c, argv[1]);
-    printf("Sucessfully Loaded Game")
+    printf("Sucessfully Loaded Game\n");
+
+    while (true) {
+        chip8_cycle(c);
+    }
 
     return EXIT_SUCCESS;
 }
