@@ -23,6 +23,7 @@
 
 typedef struct {
     uint16_t opcode;
+    uint8_t memory[MEMORY_SIZE];
     uint8_t v_reg[V_REG_NUM];
     uint16_t index_reg;
     uint16_t pc;

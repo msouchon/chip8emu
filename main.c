@@ -1,8 +1,16 @@
 #include <stdio.h>
+#include <stdlib.h>
 
-#include <global.h>
+#include "global.h"
+#include "chip8.c"
 
 int
 main(int argc, char* argv[]) {
-    return 0;
+    chip8* c = chip8_initialize();
+    printf("Sucessfully Initialized CHIP8 Struct\n");
+
+    chip8_loadgame(c, argv[1]);
+    printf("Sucessfully Loaded Game")
+
+    return EXIT_SUCCESS;
 }
