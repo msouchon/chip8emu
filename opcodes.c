@@ -8,13 +8,14 @@
 void (*opcode_table[16])(chip8*) = {
     op_00nn, op_jmp, op_call, op_se_vx_nn,
     op_undefined, op_undefined, op_ld_vx_nn, op_undefined,
-    op_undefined, op_undefined, op_undefined, op_undefined,
+    op_undefined, op_undefined, op_ld_i_nnn, op_undefined,
     op_undefined, op_undefined, op_undefined, op_fxnn
 };
 
 void (*opcode_table_00nn[256])(chip8*) = {
     [0 ... 255] = op_undefined,
-    [0xe0] = op_cls
+    [0xe0] = op_cls,
+    [0xee] = op_ret
 };
 
 void op_00nn(chip8* c) {
@@ -24,7 +25,8 @@ void op_00nn(chip8* c) {
 void (*opcode_table_fxnn[256])(chip8*) = {
     [0 ... 255] = op_undefined,
     [0x07] = op_ld_vx_dt,
-    [0x15] = op_ld_dt_vx
+    [0x15] = op_ld_dt_vx,
+    [0x1e] = op_add_i_vx
 };
 
 void op_fxnn(chip8* c) {
@@ -41,6 +43,13 @@ void op_undefined(chip8* c) {
 void op_cls(chip8* c) {
     memset(c->graphics, 0, sizeof(c->graphics));
     c->draw = true;
+    c->pc += 2;
+}
+
+//00ee
+void op_ret(chip8* c) {
+    c->sp--;
+    c->pc = c->stack[c->sp];
     c->pc += 2;
 }
 
@@ -70,6 +79,12 @@ void op_ld_vx_nn(chip8* c) {
     c->pc += 2;
 }
 
+//aNNN
+void op_ld_i_nnn(chip8* c) {
+    c->index_reg = c->opcode & 0x0fff;
+    c->pc += 2;
+}
+
 //fX07
 void op_ld_vx_dt(chip8* c) {
     c->v_reg[(c->opcode & 0x0f00) >> 8] = c->delay_timer;
@@ -79,5 +94,15 @@ void op_ld_vx_dt(chip8* c) {
 //fX15
 void op_ld_dt_vx(chip8* c) {
     c->delay_timer = c->v_reg[(c->opcode & 0x0f00) >> 8];
+    c->pc += 2;
+}
+
+//fX1e
+void op_add_i_vx(chip8* c) {
+    if (c->index_reg + c->v_reg[(c->opcode & 0x0f00) >> 8] > 0x0fff) {
+        c->v_reg[0xf] = 1;
+    }
+    else c->v_reg[0xf] = 0;
+    c->index_reg += c->v_reg[(c->opcode & 0x0f00) >> 8];
     c->pc += 2;
 }
