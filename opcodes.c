@@ -86,23 +86,32 @@ void op_ld_i_nnn(chip8* c) {
 }
 
 //dXYN
-//Currently does not wrap
 void op_drw_vx_vy_n(chip8* c) {
     uint8_t x = c->v_reg[(c->opcode & 0x0f00) >> 8];
     uint8_t y = c->v_reg[(c->opcode & 0x00f0) >> 4];
     uint8_t n = c->opcode & 0x000f;
 
-    uint8_t x1, y1, row;
+    uint8_t x1, y1, row, pixel;
+    int x_pos, y_pos;
 
     for (y1 = 0; y1 < n; y1++) {
+
         row = c->memory[c->index_reg + y1];
+
         for (x1 = 0; x1 < 8; x1++) {
+            
+            pixel = row & (0x80 >> x1);
+            if (!pixel) continue;
+
+            x_pos = (x + x1) % X_SIZE;
+            y_pos = (y + y1) % Y_SIZE;
+
             // If collision occurs between existing graphics and sprite
             // to draw V[F] = 1.
-            if (c->graphics[(y + y1) * X_SIZE + x + x1] & (row >> x1)) {
+            if (c->graphics[y_pos * X_SIZE + x_pos]) {
                 c->v_reg[0xf] = 1;
             }
-            c->graphics[(y + y1) * X_SIZE + x + x1] ^= (row >> x1);
+            c->graphics[y_pos * X_SIZE + x_pos] ^= pixel;
         }
     }
     c->draw = true;
