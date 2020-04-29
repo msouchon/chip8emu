@@ -15,6 +15,7 @@ void op_jmp(chip8*);
 void op_call(chip8*);
 void op_se_vx_nn(chip8*);
 void op_ld_vx_nn(chip8*);
+void op_add_vx_nn(chip8*);
 void op_ld_vx_vy(chip8*);
 void op_ld_i_nnn(chip8*);
 void op_drw_vx_vy_n(chip8*);

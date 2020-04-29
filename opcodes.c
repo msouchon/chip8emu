@@ -7,7 +7,7 @@
 
 void (*opcode_table[16])(chip8*) = {
     op_00nn, op_jmp, op_call, op_se_vx_nn,
-    op_undefined, op_undefined, op_ld_vx_nn, op_undefined,
+    op_undefined, op_undefined, op_ld_vx_nn, op_add_vx_nn,
     op_8xyn, op_undefined, op_ld_i_nnn, op_undefined,
     op_undefined, op_drw_vx_vy_n, op_undefined, op_fxnn
 };
@@ -85,6 +85,15 @@ void op_se_vx_nn(chip8* c) {
 //6XNN
 void op_ld_vx_nn(chip8* c) {
     c->v_reg[(c->opcode & 0x0f00) >> 8] = c->opcode & 0x00ff;
+    c->pc += 2;
+}
+
+//7XNN
+void op_add_vx_nn(chip8* c) {
+    // Not applicable to V[F]
+    if (c->opcode & 0x0f00 != 0x0f00) {
+        c->v_reg[(c->opcode & 0x0f00) >> 8] += c->opcode & 0x00ff;
+    }
     c->pc += 2;
 }
 
