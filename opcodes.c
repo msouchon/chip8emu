@@ -9,7 +9,7 @@ void (*opcode_table[16])(chip8*) = {
     op_00nn, op_jmp, op_call, op_se_vx_nn,
     op_undefined, op_undefined, op_ld_vx_nn, op_undefined,
     op_undefined, op_undefined, op_ld_i_nnn, op_undefined,
-    op_undefined, op_undefined, op_undefined, op_fxnn
+    op_undefined, op_drw_vx_vy_n, op_undefined, op_fxnn
 };
 
 void (*opcode_table_00nn[256])(chip8*) = {
@@ -82,6 +82,30 @@ void op_ld_vx_nn(chip8* c) {
 //aNNN
 void op_ld_i_nnn(chip8* c) {
     c->index_reg = c->opcode & 0x0fff;
+    c->pc += 2;
+}
+
+//dXYN
+//Currently does not wrap
+void op_drw_vx_vy_n(chip8* c) {
+    uint8_t x = c->v_reg[(c->opcode & 0x0f00) >> 8];
+    uint8_t y = c->v_reg[(c->opcode & 0x00f0) >> 4];
+    uint8_t n = c->opcode & 0x000f;
+
+    uint8_t x1, y1, row;
+
+    for (y1 = 0; y1 < n; y1++) {
+        row = c->memory[c->index_reg + y1];
+        for (x1 = 0; x1 < 8; x1++) {
+            // If collision occurs between existing graphics and sprite
+            // to draw V[F] = 1.
+            if (c->graphics[(y + y1) * X_SIZE + x + x1] & (row >> x1)) {
+                c->v_reg[0xf] = 1;
+            }
+            c->graphics[(y + y1) * X_SIZE + x + x1] ^= (row >> x1);
+        }
+    }
+    c->draw = true;
     c->pc += 2;
 }
 
