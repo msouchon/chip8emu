@@ -38,7 +38,8 @@ void (*opcode_table_fxnn[256])(chip8*) = {
     [0 ... 255] = op_undefined,
     [0x07] = op_ld_vx_dt,
     [0x15] = op_ld_dt_vx,
-    [0x1e] = op_add_i_vx
+    [0x1e] = op_add_i_vx,
+    [0x55] = op_ld_i_vx
 };
 
 void op_fxnn(chip8* c) {
@@ -197,5 +198,13 @@ void op_add_i_vx(chip8* c) {
     }
     else c->v_reg[0xf] = 0;
     c->index_reg += c->v_reg[(c->opcode & 0x0f00) >> 8];
+    c->pc += 2;
+}
+
+//fx55
+void op_ld_i_vx(chip8* c) {
+    for (int i = 0; i <= (c->v_reg[(c->opcode & 0x0f00) >> 8]); i++) {
+        c->memory[c->index_reg + i] = c->v_reg[i];
+    }
     c->pc += 2;
 }
