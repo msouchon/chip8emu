@@ -25,6 +25,7 @@ void op_00nn(chip8* c) {
 void (*opcode_table_8xyn[16])(chip8*) = {
     [0 ... 15] = op_undefined,
     [0x0] = op_ld_vx_vy,
+    [0x5] = op_sub_vx_vy,
     [0xe] = op_shl_vx_vy
 };
 
@@ -101,6 +102,16 @@ void op_add_vx_nn(chip8* c) {
 //8XY0
 void op_ld_vx_vy(chip8* c) {
     c->v_reg[(c->opcode & 0x0f00) >> 8] = c->v_reg[(c->opcode & 0x00f0) >> 4];
+    c->pc += 2;
+}
+
+//8xy5
+void op_sub_vx_vy(chip8* c) {
+    if (c->v_reg[(c->opcode & 0x0f00) >> 8] < c->v_reg[(c->opcode & 0x00f0) >> 4]) {
+        c->v_reg[0xf] = 0;
+    }
+    else c->v_reg[0xf] = 1;
+    c->v_reg[(c->opcode & 0x0f00) >> 8] -= c->v_reg[(c->opcode & 0x00f0) >> 4];
     c->pc += 2;
 }
 
