@@ -14,6 +14,7 @@ void op_ret(chip8*);
 void op_jmp(chip8*);
 void op_call(chip8*);
 void op_se_vx_nn(chip8*);
+void op_sne_vx_nn(chip8*);
 void op_ld_vx_nn(chip8*);
 void op_add_vx_nn(chip8*);
 void op_ld_vx_vy(chip8*);
