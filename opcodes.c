@@ -40,6 +40,7 @@ void (*opcode_table_fxnn[256])(chip8*) = {
     [0 ... 255] = op_undefined,
     [0x07] = op_ld_vx_dt,
     [0x15] = op_ld_dt_vx,
+    [0x18] = op_ld_st_vx,
     [0x1e] = op_add_i_vx,
     [0x29] = op_ld_i_fontvx,
     [0x33] = op_bcd_vx,
@@ -207,6 +208,12 @@ void op_ld_vx_dt(chip8* c) {
 //fX15
 void op_ld_dt_vx(chip8* c) {
     c->delay_timer = c->v_reg[(c->opcode & 0x0f00) >> 8];
+    c->pc += 2;
+}
+
+//fX18
+void op_ld_st_vx(chip8* c) {
+    c->sound_timer = c->v_reg[(c->opcode & 0x0f00) >> 8];
     c->pc += 2;
 }
 
