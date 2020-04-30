@@ -26,6 +26,7 @@ void op_00nn(chip8* c) {
 void (*opcode_table_8xyn[16])(chip8*) = {
     [0 ... 15] = op_undefined,
     [0x0] = op_ld_vx_vy,
+    [0x3] = op_xor_vx_vy,
     [0x4] = op_add_vx_vy,
     [0x5] = op_sub_vx_vy,
     [0xe] = op_shl_vx_vy
@@ -107,7 +108,7 @@ void op_ld_vx_nn(chip8* c) {
 //7XNN
 void op_add_vx_nn(chip8* c) {
     // Not applicable to V[F]
-    if (c->opcode & 0x0f00 != 0x0f00) {
+    if (((c->opcode & 0x0f00) >> 8) != 0xf) {
         c->v_reg[(c->opcode & 0x0f00) >> 8] += c->opcode & 0x00ff;
     }
     c->pc += 2;
@@ -119,7 +120,13 @@ void op_ld_vx_vy(chip8* c) {
     c->pc += 2;
 }
 
-//8xy4
+//8XY3
+void op_xor_vx_vy(chip8* c) {
+    c->v_reg[(c->opcode & 0x0f00) >> 8] ^= c->v_reg[(c->opcode & 0x00f0) >> 4];
+    c->pc += 2;
+}
+
+//8XY4
 void op_add_vx_vy(chip8* c) {
     if (c->v_reg[(c->opcode & 0x0f00) >> 8] < (0xff - c->v_reg[(c->opcode & 0x00f0) >> 4])) {
         c->v_reg[0xf] = 0;
@@ -129,7 +136,7 @@ void op_add_vx_vy(chip8* c) {
     c->pc += 2;
 }
 
-//8xy5
+//8XY5
 void op_sub_vx_vy(chip8* c) {
     if (c->v_reg[(c->opcode & 0x0f00) >> 8] < c->v_reg[(c->opcode & 0x00f0) >> 4]) {
         c->v_reg[0xf] = 0;
@@ -215,7 +222,7 @@ void op_add_i_vx(chip8* c) {
 
 //fX29
 void op_ld_i_fontvx(chip8* c) {
-    c->index_reg = chip8_fontset[((c->opcode & 0x0f00) >> 8) * 5];
+    c->index_reg = chip8_fontset[c->v_reg[(c->opcode & 0x0f00) >> 8] * 5];
     c->pc += 2;
 }
 
