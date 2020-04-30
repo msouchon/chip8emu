@@ -4,6 +4,7 @@
 
 #include "global.h"
 #include "opcodes.h"
+#include "chip8.h"
 
 void (*opcode_table[16])(chip8*) = {
     op_00nn, op_jmp, op_call, op_se_vx_nn,
@@ -39,6 +40,7 @@ void (*opcode_table_fxnn[256])(chip8*) = {
     [0x07] = op_ld_vx_dt,
     [0x15] = op_ld_dt_vx,
     [0x1e] = op_add_i_vx,
+    [0x29] = op_ld_i_fontvx,
     [0x33] = op_bcd_vx,
     [0x55] = op_ld_i_vx,
     [0x65] = op_ld_vx_i
@@ -211,7 +213,13 @@ void op_add_i_vx(chip8* c) {
     c->pc += 2;
 }
 
-//fx33
+//fX29
+void op_ld_i_fontvx(chip8* c) {
+    c->index_reg = chip8_fontset[((c->opcode & 0x0f00) >> 8) * 5];
+    c->pc += 2;
+}
+
+//fX33
 void op_bcd_vx(chip8* c) {
     c->memory[c->index_reg + 2] = c->v_reg[(c->opcode & 0x0f00) >> 8] % 10;
     c->memory[c->index_reg + 1] = (c->v_reg[(c->opcode & 0x0f00) >> 8] % 100) / 10;
@@ -219,7 +227,7 @@ void op_bcd_vx(chip8* c) {
     c->pc += 2;
 }
 
-//fx55
+//fX55
 void op_ld_i_vx(chip8* c) {
     for (int i = 0; i <= (c->v_reg[(c->opcode & 0x0f00) >> 8]); i++) {
         c->memory[c->index_reg + i] = c->v_reg[i];
@@ -227,7 +235,7 @@ void op_ld_i_vx(chip8* c) {
     c->pc += 2;
 }
 
-//fx65
+//fX65
 void op_ld_vx_i(chip8* c) {
     for (int i = 0; i <= (c->v_reg[(c->opcode & 0x0f00) >> 8]); i++) {
         c->v_reg[i] = c->memory[c->index_reg + i];
