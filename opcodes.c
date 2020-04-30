@@ -39,6 +39,7 @@ void (*opcode_table_fxnn[256])(chip8*) = {
     [0x07] = op_ld_vx_dt,
     [0x15] = op_ld_dt_vx,
     [0x1e] = op_add_i_vx,
+    [0x33] = op_bcd_vx,
     [0x55] = op_ld_i_vx,
     [0x65] = op_ld_vx_i
 };
@@ -207,6 +208,14 @@ void op_add_i_vx(chip8* c) {
     }
     else c->v_reg[0xf] = 0;
     c->index_reg += c->v_reg[(c->opcode & 0x0f00) >> 8];
+    c->pc += 2;
+}
+
+//fx33
+void op_bcd_vx(chip8* c) {
+    c->memory[c->index_reg + 2] = c->v_reg[(c->opcode & 0x0f00) >> 8] % 10;
+    c->memory[c->index_reg + 1] = (c->v_reg[(c->opcode & 0x0f00) >> 8] % 100) / 10;
+    c->memory[c->index_reg + 0] = c->v_reg[(c->opcode & 0x0f00) >> 8] / 100;
     c->pc += 2;
 }
 
