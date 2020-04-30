@@ -18,6 +18,7 @@ void op_ld_vx_nn(chip8*);
 void op_add_vx_nn(chip8*);
 void op_ld_vx_vy(chip8*);
 void op_ld_i_nnn(chip8*);
+void op_rnd_vx_nn(chip8*);
 void op_drw_vx_vy_n(chip8*);
 void op_ld_vx_dt(chip8*);
 void op_ld_dt_vx(chip8*);

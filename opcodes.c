@@ -9,7 +9,7 @@ void (*opcode_table[16])(chip8*) = {
     op_00nn, op_jmp, op_call, op_se_vx_nn,
     op_undefined, op_undefined, op_ld_vx_nn, op_add_vx_nn,
     op_8xyn, op_undefined, op_ld_i_nnn, op_undefined,
-    op_undefined, op_drw_vx_vy_n, op_undefined, op_fxnn
+    op_rnd_vx_nn, op_drw_vx_vy_n, op_undefined, op_fxnn
 };
 
 void (*opcode_table_00nn[256])(chip8*) = {
@@ -106,6 +106,12 @@ void op_ld_vx_vy(chip8* c) {
 //aNNN
 void op_ld_i_nnn(chip8* c) {
     c->index_reg = c->opcode & 0x0fff;
+    c->pc += 2;
+}
+
+//cXNN
+void op_rnd_vx_nn(chip8* c) {
+    c->v_reg[(c->opcode & 0x0f00) >> 8] = (c->opcode & 0x0ff) & (rand() % 0x100);
     c->pc += 2;
 }
 
