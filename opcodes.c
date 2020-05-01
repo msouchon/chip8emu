@@ -10,7 +10,7 @@ void (*opcode_table[16])(chip8*) = {
     op_00nn, op_jmp, op_call, op_se_vx_nn,
     op_sne_vx_nn, op_undefined, op_ld_vx_nn, op_add_vx_nn,
     op_8xyn, op_undefined, op_ld_i_nnn, op_undefined,
-    op_rnd_vx_nn, op_drw_vx_vy_n, op_undefined, op_fxnn
+    op_rnd_vx_nn, op_drw_vx_vy_n, op_exnn, op_fxnn
 };
 
 void (*opcode_table_00nn[256])(chip8*) = {
@@ -35,6 +35,15 @@ void (*opcode_table_8xyn[16])(chip8*) = {
 
 void op_8xyn(chip8* c) {
     opcode_table_8xyn[c->opcode & 0x000f](c);
+}
+
+void (*opcode_table_exnn[256])(chip8*) = {
+    [0 ... 255] = op_undefined,
+    [0x9e] = op_skp_vx
+};
+
+void op_exnn(chip8* c) {
+    opcode_table_exnn[c->opcode & 0x00ff](c);
 }
 
 void (*opcode_table_fxnn[256])(chip8*) = {
@@ -204,6 +213,14 @@ void op_drw_vx_vy_n(chip8* c) {
     }
     c->draw = true;
     c->pc += 2;
+}
+
+//eX9e
+void op_skp_vx(chip8* c) {
+    if (c->key[c->v_reg[(c->opcode & 0x0f00) >> 8]]) {
+        c->pc += 4;
+    }
+    else c->pc += 2;
 }
 
 //fX07
