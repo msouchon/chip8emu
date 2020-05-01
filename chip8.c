@@ -6,7 +6,7 @@
 #include "chip8.h"
 
 
-uint8_t chip8_fontset[80] = { 
+uint8_t chip8_fontset[FONTSET_LENGTH] = { 
     0xF0, 0x90, 0x90, 0x90, 0xF0, // 0
 	0x20, 0x60, 0x20, 0x20, 0x70, // 1
 	0xF0, 0x10, 0xF0, 0x80, 0xF0, // 2
@@ -33,6 +33,12 @@ chip8* chip8_initialize() {
     if (c == NULL) {
         perror("Failed to allocate memory");
         exit(EXIT_FAILURE);
+    }
+
+    // Some ROMS require fontset data to be stored at the start of memory
+    // e.g 15 Puzzle
+    for (int i = 0; i < FONTSET_LENGTH; i++) {
+        c->memory[i] = chip8_fontset[i];
     }
 
     c->pc = ROM_LOAD_POINT;

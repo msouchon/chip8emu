@@ -13,6 +13,8 @@
 
 #define MEMORY_SIZE 4096
 
+#define FONTSET_LENGTH 80
+
 #define V_REG_NUM 16
 
 // Most chip8 implementations have 16 levels of stack but

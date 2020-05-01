@@ -39,7 +39,8 @@ void op_8xyn(chip8* c) {
 
 void (*opcode_table_exnn[256])(chip8*) = {
     [0 ... 255] = op_undefined,
-    [0x9e] = op_skp_vx
+    [0x9e] = op_skp_vx,
+    [0xa1] = op_sknp_vx
 };
 
 void op_exnn(chip8* c) {
@@ -223,6 +224,14 @@ void op_skp_vx(chip8* c) {
     else c->pc += 2;
 }
 
+//eXa1
+void op_sknp_vx(chip8* c) {
+    if (!c->key[c->v_reg[(c->opcode & 0x0f00) >> 8]]) {
+        c->pc += 4;
+    }
+    else c->pc += 2;
+}
+
 //fX07
 void op_ld_vx_dt(chip8* c) {
     c->v_reg[(c->opcode & 0x0f00) >> 8] = c->delay_timer;
@@ -253,7 +262,7 @@ void op_add_i_vx(chip8* c) {
 
 //fX29
 void op_ld_i_fontvx(chip8* c) {
-    c->index_reg = chip8_fontset[c->v_reg[(c->opcode & 0x0f00) >> 8] * 5];
+    c->index_reg = c->v_reg[(c->opcode & 0x0f00) >> 8] * 5;
     c->pc += 2;
 }
 
@@ -267,7 +276,7 @@ void op_bcd_vx(chip8* c) {
 
 //fX55
 void op_ld_i_vx(chip8* c) {
-    for (int i = 0; i <= (c->v_reg[(c->opcode & 0x0f00) >> 8]); i++) {
+    for (int i = 0; i <= (c->opcode & 0x0f00) >> 8; i++) {
         c->memory[c->index_reg + i] = c->v_reg[i];
     }
     c->pc += 2;
@@ -275,7 +284,7 @@ void op_ld_i_vx(chip8* c) {
 
 //fX65
 void op_ld_vx_i(chip8* c) {
-    for (int i = 0; i <= (c->v_reg[(c->opcode & 0x0f00) >> 8]); i++) {
+    for (int i = 0; i <= (c->opcode & 0x0f00) >> 8; i++) {
         c->v_reg[i] = c->memory[c->index_reg + i];
     }
     c->pc += 2;
