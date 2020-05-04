@@ -105,7 +105,7 @@ void op_se_vx_nn(chip8* c) {
 
 //4XNN
 void op_sne_vx_nn(chip8* c) {
-    if (c->v_reg[(c->opcode & 0x0f00) >> 8] != (c->opcode & 0x0ff)) {
+    if (c->v_reg[(c->opcode & 0x0f00) >> 8] != (c->opcode & 0x00ff)) {
         c->pc += 4;
     }
     else c->pc += 2;
@@ -119,10 +119,7 @@ void op_ld_vx_nn(chip8* c) {
 
 //7XNN
 void op_add_vx_nn(chip8* c) {
-    // Not applicable to V[F]
-    if (((c->opcode & 0x0f00) >> 8) != 0xf) {
-        c->v_reg[(c->opcode & 0x0f00) >> 8] += c->opcode & 0x00ff;
-    }
+    c->v_reg[(c->opcode & 0x0f00) >> 8] += c->opcode & 0x00ff;
     c->pc += 2;
 }
 
@@ -156,10 +153,10 @@ void op_add_vx_vy(chip8* c) {
 
 //8XY5
 void op_sub_vx_vy(chip8* c) {
-    if (c->v_reg[(c->opcode & 0x0f00) >> 8] < c->v_reg[(c->opcode & 0x00f0) >> 4]) {
-        c->v_reg[0xf] = 0;
+    if (c->v_reg[(c->opcode & 0x0f00) >> 8] > c->v_reg[(c->opcode & 0x00f0) >> 4]) {
+        c->v_reg[0xf] = 1;
     }
-    else c->v_reg[0xf] = 1;
+    else c->v_reg[0xf] = 0;
     c->v_reg[(c->opcode & 0x0f00) >> 8] -= c->v_reg[(c->opcode & 0x00f0) >> 4];
     c->pc += 2;
 }
@@ -179,7 +176,7 @@ void op_ld_i_nnn(chip8* c) {
 
 //cXNN
 void op_rnd_vx_nn(chip8* c) {
-    c->v_reg[(c->opcode & 0x0f00) >> 8] = (c->opcode & 0x0ff) & (rand() % 0x100);
+    c->v_reg[(c->opcode & 0x0f00) >> 8] = (c->opcode & 0x00ff) & (rand() % 0x100);
     c->pc += 2;
 }
 
@@ -206,9 +203,9 @@ void op_drw_vx_vy_n(chip8* c) {
 
             // If collision occurs between existing graphics and sprite
             // to draw V[F] = 1.
-            if (c->graphics[y_pos * X_SIZE + x_pos]) {
+            if (c->graphics[y_pos * X_SIZE + x_pos] == 1) {
                 c->v_reg[0xf] = 1;
-            }
+            } 
             c->graphics[y_pos * X_SIZE + x_pos] ^= pixel;
         }
     }
@@ -262,7 +259,12 @@ void op_add_i_vx(chip8* c) {
 
 //fX29
 void op_ld_i_fontvx(chip8* c) {
-    c->index_reg = c->v_reg[(c->opcode & 0x0f00) >> 8] * 5;
+    if (c->fontset_in_memory) {
+     c->index_reg = c->v_reg[(c->opcode & 0x0f00) >> 8] * 5;
+    }
+    else {
+    c->index_reg = chip8_fontset[c->v_reg[(c->opcode & 0x0f00) >> 8] * 5];
+    }
     c->pc += 2;
 }
 

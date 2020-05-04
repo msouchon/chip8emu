@@ -38,6 +38,7 @@ typedef struct {
     uint8_t sp;
     uint8_t key[NUM_OF_KEYS];
     bool draw;
+    bool fontset_in_memory;
 } chip8;
 
 #endif
