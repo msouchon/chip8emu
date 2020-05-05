@@ -30,6 +30,7 @@ void op_drw_vx_vy_n(chip8*);
 void op_skp_vx(chip8*);
 void op_sknp_vx(chip8*);
 void op_ld_vx_dt(chip8*);
+void op_ld_vx_key(chip8*);
 void op_ld_dt_vx(chip8*);
 void op_ld_st_vx(chip8*);
 void op_add_i_vx(chip8*);

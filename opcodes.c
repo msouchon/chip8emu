@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <stdbool.h>
 
 #include "global.h"
 #include "opcodes.h"
@@ -50,6 +51,7 @@ void op_exnn(chip8* c) {
 void (*opcode_table_fxnn[256])(chip8*) = {
     [0 ... 255] = op_undefined,
     [0x07] = op_ld_vx_dt,
+    [0x0a] = op_ld_vx_key,
     [0x15] = op_ld_dt_vx,
     [0x18] = op_ld_st_vx,
     [0x1e] = op_add_i_vx,
@@ -232,6 +234,20 @@ void op_sknp_vx(chip8* c) {
 //fX07
 void op_ld_vx_dt(chip8* c) {
     c->v_reg[(c->opcode & 0x0f00) >> 8] = c->delay_timer;
+    c->pc += 2;
+}
+
+//fX0a
+void op_ld_vx_key(chip8* c) {
+    while (true) {
+        for (int i = 0; i < NUM_OF_KEYS; i++) {
+            if (c->key[i]) {
+                c->v_reg[(c->opcode & 0x0f00) >> 8] = i;
+                goto KEY_FOUND;
+            }
+        }
+    }
+    KEY_FOUND:
     c->pc += 2;
 }
 
