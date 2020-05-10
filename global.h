@@ -13,6 +13,8 @@
 
 #define MEMORY_SIZE 4096
 
+#define FONTSET_LENGTH 80
+
 #define V_REG_NUM 16
 
 // Most chip8 implementations have 16 levels of stack but
@@ -36,6 +38,7 @@ typedef struct {
     uint8_t sp;
     uint8_t key[NUM_OF_KEYS];
     bool draw;
+    bool fontset_in_memory;
 } chip8;
 
 #endif
