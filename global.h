@@ -25,7 +25,8 @@
 
 #define NUM_OF_KEYS 16
 
-#define CHIP8_CLOCKS_PER_SEC 60
+#define CHIP8_CLOCKS_PER_SEC 540
+#define TIMER_CLOCKS_PER_SEC 60
 
 typedef struct {
     uint16_t opcode;
