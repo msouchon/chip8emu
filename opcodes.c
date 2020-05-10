@@ -286,6 +286,7 @@ void op_ld_vx_dt(chip8* c) {
 
 //fX0a
 void op_ld_vx_key(chip8* c) {
+    /*
     while (true) {
         for (int i = 0; i < NUM_OF_KEYS; i++) {
             if (c->key[i]) {
@@ -296,6 +297,14 @@ void op_ld_vx_key(chip8* c) {
     }
     KEY_FOUND:
     c->pc += 2;
+    */
+   for (int i = 0; i < NUM_OF_KEYS; i++) {
+        if (c->key[i]) {
+            c->key[i] = 0;
+            c->v_reg[(c->opcode & 0x0f00) >> 8] = i;
+            c->pc += 2;
+        }
+    }
 }
 
 //fX15

@@ -48,7 +48,7 @@ main(int argc, char* argv[]) {
     chip8* c;
 
     // Init chip8 core
-    c = chip8_initialize(true);
+    c = chip8_initialize(false);
     chip8_loadgame(c, argv[1]);
 
     // Init SDL
