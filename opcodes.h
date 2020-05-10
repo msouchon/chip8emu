@@ -30,6 +30,7 @@ void op_subn_vx_vy(chip8*);
 void op_shl_vx_vy(chip8*);
 void op_sne_vx_vy(chip8*);
 void op_ld_i_nnn(chip8*);
+void op_jmp_v0_nnn(chip8*);
 void op_rnd_vx_nn(chip8*);
 void op_drw_vx_vy_n(chip8*);
 void op_skp_vx(chip8*);

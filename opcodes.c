@@ -10,7 +10,7 @@
 void (*opcode_table[16])(chip8*) = {
     op_00nn, op_jmp, op_call, op_se_vx_nn,
     op_sne_vx_nn, op_se_vx_vy, op_ld_vx_nn, op_add_vx_nn,
-    op_8xyn, op_sne_vx_vy, op_ld_i_nnn, op_undefined,
+    op_8xyn, op_sne_vx_vy, op_ld_i_nnn, op_jmp_v0_nnn,
     op_rnd_vx_nn, op_drw_vx_vy_n, op_exnn, op_fxnn
 };
 
@@ -216,6 +216,11 @@ void op_sne_vx_vy(chip8* c) {
 void op_ld_i_nnn(chip8* c) {
     c->index_reg = c->opcode & 0x0fff;
     c->pc += 2;
+}
+
+//bNNN
+void op_jmp_v0_nnn(chip8* c) {
+    c->pc = c->v_reg[0x0] + (c->opcode & 0x0fff);
 }
 
 //cXNN
