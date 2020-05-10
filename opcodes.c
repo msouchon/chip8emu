@@ -9,7 +9,7 @@
 
 void (*opcode_table[16])(chip8*) = {
     op_00nn, op_jmp, op_call, op_se_vx_nn,
-    op_sne_vx_nn, op_undefined, op_ld_vx_nn, op_add_vx_nn,
+    op_sne_vx_nn, op_se_vx_vy, op_ld_vx_nn, op_add_vx_nn,
     op_8xyn, op_undefined, op_ld_i_nnn, op_undefined,
     op_rnd_vx_nn, op_drw_vx_vy_n, op_exnn, op_fxnn
 };
@@ -108,6 +108,14 @@ void op_se_vx_nn(chip8* c) {
 //4XNN
 void op_sne_vx_nn(chip8* c) {
     if (c->v_reg[(c->opcode & 0x0f00) >> 8] != (c->opcode & 0x00ff)) {
+        c->pc += 4;
+    }
+    else c->pc += 2;
+}
+
+//5XY0
+void op_se_vx_vy(chip8* c) {
+    if (c->v_reg[(c->opcode & 0x0f00) >> 8] == c->v_reg[(c->opcode & 0x00f0) >> 4]) {
         c->pc += 4;
     }
     else c->pc += 2;
