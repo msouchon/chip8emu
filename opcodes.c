@@ -340,12 +340,7 @@ void op_add_i_vx(chip8* c) {
 
 //fX29
 void op_ld_i_fontvx(chip8* c) {
-    if (c->fontset_in_memory) {
-     c->index_reg = c->v_reg[(c->opcode & 0x0f00) >> 8] * 5;
-    }
-    else {
-    c->index_reg = chip8_fontset[c->v_reg[(c->opcode & 0x0f00) >> 8] * 5];
-    }
+    c->index_reg = c->v_reg[(c->opcode & 0x0f00) >> 8] * 5;
     c->pc += 2;
 }
 

@@ -28,21 +28,17 @@ uint8_t chip8_fontset[FONTSET_LENGTH] = {
 /*
  * Initializes a chip8 struct with default values.
  */
-chip8* chip8_initialize(bool fontset_in_memory) {
+chip8* chip8_initialize() {
     chip8* c = calloc(1, sizeof(*c));
     if (c == NULL) {
         perror("Failed to allocate memory");
         exit(EXIT_FAILURE);
     }
-
-    // Some ROMS require fontset data to be stored at the start of memory
-    // e.g 15 Puzzle
-    c->fontset_in_memory = fontset_in_memory;
-    if (c->fontset_in_memory) {
-        for (int i = 0; i < FONTSET_LENGTH; i++) {
-            c->memory[i] = chip8_fontset[i];
-        }
+    
+    for (int i = 0; i < FONTSET_LENGTH; i++) {
+        c->memory[i] = chip8_fontset[i];
     }
+    
 
     c->pc = ROM_LOAD_POINT;
     c->draw = false;
