@@ -237,6 +237,10 @@ void op_drw_vx_vy_n(chip8* c) {
 
     uint8_t x1, y1, row, pixel;
     int x_pos, y_pos;
+    bool collision = false;
+
+    x = x % X_SIZE;
+    y = y % Y_SIZE;
 
     for (y1 = 0; y1 < n; y1++) {
 
@@ -247,17 +251,22 @@ void op_drw_vx_vy_n(chip8* c) {
             pixel = row & (0x80 >> x1);
             if (!pixel) continue;
 
-            x_pos = (x + x1) % X_SIZE;
-            y_pos = (y + y1) % Y_SIZE;
+            x_pos = (x + x1);
+            y_pos = (y + y1);
 
-            // If collision occurs between existing graphics and sprite
-            // to draw V[F] = 1.
+            if (x_pos >= X_SIZE || y_pos >= Y_SIZE) continue;
+
             if (c->graphics[y_pos * X_SIZE + x_pos] == 1) {
-                c->v_reg[0xf] = 1;
+                collision = true;
             } 
+
             c->graphics[y_pos * X_SIZE + x_pos] ^= pixel;
         }
     }
+
+    if (collision) c->v_reg[0xf] = 1;
+    else c->v_reg[0xf] = 0;
+    
     c->draw = true;
     c->pc += 2;
 }
