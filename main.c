@@ -191,6 +191,7 @@ main(int argc, char* argv[]) {
             last_chip8_cycle = ticks;
 
             chip8_cycle(c);
+
             if (c->draw) {
                 SDL_LockTexture(texture, NULL, (void**)&rgba_graphics, &pitch);
                 to_rgba(c->graphics, rgba_graphics);

@@ -38,7 +38,6 @@ chip8* chip8_initialize() {
     for (int i = 0; i < FONTSET_LENGTH; i++) {
         c->memory[i] = chip8_fontset[i];
     }
-    
 
     c->pc = ROM_LOAD_POINT;
     c->draw = false;
