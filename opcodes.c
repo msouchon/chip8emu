@@ -260,7 +260,7 @@ void op_drw_vx_vy_n(chip8* c) {
                 collision = true;
             } 
 
-            c->graphics[y_pos * X_SIZE + x_pos] ^= pixel;
+            c->graphics[y_pos * X_SIZE + x_pos] ^= 1;
         }
     }
 

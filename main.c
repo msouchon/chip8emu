@@ -216,14 +216,14 @@ main(int argc, char* argv[]) {
             font_rect.w = str_w;
             font_rect.h = str_h;
             SDL_SetTextureBlendMode(font_tex, SDL_BLENDMODE_ADD);
-            
+            /*
             for (int i = 0; i < 16; i++) {
                 char v_str[20];
                 sprintf(v_str, "v[%x] = %02x", i, c->v_reg[i]);
                 v_surf[i] = TTF_RenderText_Solid(font, v_str, color);
                 v_tex[i] = SDL_CreateTextureFromSurface(renderer, v_surf[i]);
                 SDL_SetTextureBlendMode(v_tex[i], SDL_BLENDMODE_ADD);
-            }
+            }*/
             
             
             if (c->draw) {
@@ -243,12 +243,12 @@ main(int argc, char* argv[]) {
         SDL_RenderClear(renderer);
         SDL_RenderCopy(renderer, texture, NULL, NULL);
         SDL_RenderCopy(renderer, font_tex, NULL, &font_rect);
-        
+        /*
         for (int j = 0; j < 16; j++) {
             v_rect.y += 30;
             SDL_RenderCopy(renderer, v_tex[j], NULL, &v_rect);
         }
-        v_rect.y -= 30*16;
+        v_rect.y -= 30*16;*/
         SDL_RenderPresent(renderer);
     }
 
