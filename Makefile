@@ -8,7 +8,7 @@ LIBRARY_PATHS = -L C:\msys64\mingw64\lib
 
 COMPILER_FLAGS = -Wall
 
-LINKER_FLAGS = -l mingw32 -l SDL2main -l SDL2
+LINKER_FLAGS = -l mingw32 -l SDL2main -l SDL2 -l SDL2_ttf
 
 OBJ_NAME = main.exe
 
