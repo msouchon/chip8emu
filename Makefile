@@ -1,4 +1,4 @@
-OBJS = main.c chip8.c opcodes.c
+OBJS = main.c chip8.c opcodes.c graphics.c
 
 CC = gcc
 
