@@ -237,6 +237,10 @@ void op_drw_vx_vy_n(chip8* c) {
 
     uint8_t x1, y1, row, pixel;
     int x_pos, y_pos;
+    bool collision = false;
+
+    x = x % X_SIZE;
+    y = y % Y_SIZE;
 
     for (y1 = 0; y1 < n; y1++) {
 
@@ -247,17 +251,22 @@ void op_drw_vx_vy_n(chip8* c) {
             pixel = row & (0x80 >> x1);
             if (!pixel) continue;
 
-            x_pos = (x + x1) % X_SIZE;
-            y_pos = (y + y1) % Y_SIZE;
+            x_pos = (x + x1);
+            y_pos = (y + y1);
 
-            // If collision occurs between existing graphics and sprite
-            // to draw V[F] = 1.
+            if (x_pos >= X_SIZE || y_pos >= Y_SIZE) continue;
+
             if (c->graphics[y_pos * X_SIZE + x_pos] == 1) {
-                c->v_reg[0xf] = 1;
+                collision = true;
             } 
-            c->graphics[y_pos * X_SIZE + x_pos] ^= pixel;
+
+            c->graphics[y_pos * X_SIZE + x_pos] ^= 1;
         }
     }
+
+    if (collision) c->v_reg[0xf] = 1;
+    else c->v_reg[0xf] = 0;
+    
     c->draw = true;
     c->pc += 2;
 }
@@ -286,16 +295,13 @@ void op_ld_vx_dt(chip8* c) {
 
 //fX0a
 void op_ld_vx_key(chip8* c) {
-    while (true) {
-        for (int i = 0; i < NUM_OF_KEYS; i++) {
-            if (c->key[i]) {
-                c->v_reg[(c->opcode & 0x0f00) >> 8] = i;
-                goto KEY_FOUND;
-            }
+   for (int i = 0; i < NUM_OF_KEYS; i++) {
+        if (c->key[i]) {
+            c->key[i] = 0;
+            c->v_reg[(c->opcode & 0x0f00) >> 8] = i;
+            c->pc += 2;
         }
     }
-    KEY_FOUND:
-    c->pc += 2;
 }
 
 //fX15
@@ -322,12 +328,7 @@ void op_add_i_vx(chip8* c) {
 
 //fX29
 void op_ld_i_fontvx(chip8* c) {
-    if (c->fontset_in_memory) {
-     c->index_reg = c->v_reg[(c->opcode & 0x0f00) >> 8] * 5;
-    }
-    else {
-    c->index_reg = chip8_fontset[c->v_reg[(c->opcode & 0x0f00) >> 8] * 5];
-    }
+    c->index_reg = c->v_reg[(c->opcode & 0x0f00) >> 8] * 5;
     c->pc += 2;
 }
 
