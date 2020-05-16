@@ -40,7 +40,7 @@ int main(int argc, char* argv[]) {
 	}
     renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
     SDL_RenderSetLogicalSize(renderer, X_WINDOW_SIZE, Y_WINDOW_SIZE);
-    texture = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_STREAMING, X_SIZE, Y_SIZE);
+    texture = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_STREAMING, X_SIZE * 2, Y_SIZE * 2);
     
     if (TTF_Init() < 0) {
         printf("TTF could not initialise, SDL Error: %s\n", SDL_GetError());
@@ -184,6 +184,7 @@ int main(int argc, char* argv[]) {
             last_chip8_cycle = ticks;
 
             chip8_cycle(c);
+            
             sprintf(op_str, "opcode: %04x", c->opcode);
             surface = TTF_RenderText_Solid(font, op_str, color);
             font_tex = SDL_CreateTextureFromSurface(renderer, surface);
