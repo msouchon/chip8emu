@@ -7,50 +7,29 @@
 
 #include "global.h"
 #include "chip8.h"
+#include "graphics.h"
 
-/*
- * Provides basic debug printing which prints the display to
- * the console/terminal. Uses X's to display active pixels.
- */
-void debug_print(chip8* c) {
-    for (int y = 0; y < Y_SIZE; y++) {
-        for (int x = 0; x < X_SIZE; x++) {
-            if (c->graphics[y * X_SIZE + x]) printf("X");
-            else printf(" ");
-        }
-        printf("\n");
-    }
-}
-
-void to_rgba(uint8_t* in_pix, uint32_t* out_pix) {
-    for (int y = 0; y < Y_SIZE; y++) {
-        for (int x = 0; x < X_SIZE; x++) {
-            if (in_pix[y * X_SIZE + x]) {
-                out_pix[y * X_SIZE + x] = 0xffffff00;
-            }
-            else out_pix[y * X_SIZE + x] = 0;
-        }
-    }
-}
-
-int
-main(int argc, char* argv[]) {
+int main(int argc, char* argv[]) {
 
     SDL_Window* window;
     SDL_Renderer* renderer;
     SDL_Texture* texture;
     SDL_Event event;
-    uint32_t *rgba_graphics;
+    uint32_t* rgba_graphics;
     Uint64 ticks;
     Uint64 last_chip8_cycle;
     Uint64 last_timer_cycle;
     int pitch;
     bool running;
     chip8* c;
+    graphics_handler* gh;
 
     // Init chip8 core
     c = chip8_initialize();
     chip8_loadgame(c, argv[1]);
+
+    // Init graphics handler
+    gh = graphics_init(X_SIZE, Y_SIZE, EPX_16X);
 
     // Init SDL
     if (SDL_Init(SDL_INIT_VIDEO) < 0) {
@@ -64,7 +43,7 @@ main(int argc, char* argv[]) {
 	}
     renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
     SDL_RenderSetLogicalSize(renderer, X_WINDOW_SIZE, Y_WINDOW_SIZE);
-    texture = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_STREAMING, X_SIZE, Y_SIZE);
+    texture = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_STREAMING, gh->x_out_size, gh->y_out_size);
     
     if (TTF_Init() < 0) {
         printf("TTF could not initialise, SDL Error: %s\n", SDL_GetError());
@@ -74,8 +53,6 @@ main(int argc, char* argv[]) {
     SDL_Color color = {0xff, 0xff, 0xff};
     SDL_Surface *surface;
     SDL_Texture *font_tex;
-    SDL_Texture *v_tex[16];
-    SDL_Surface *v_surf[16];
 
     // Begin event loop
     running = true;
@@ -85,7 +62,6 @@ main(int argc, char* argv[]) {
     char op_str[20];
     int str_w, str_h;
     SDL_Rect font_rect = {0, 0, 0, 0};
-    SDL_Rect v_rect = {0, 0, 80, 20};
     
     while (running) {
 
@@ -209,6 +185,7 @@ main(int argc, char* argv[]) {
             last_chip8_cycle = ticks;
 
             chip8_cycle(c);
+
             sprintf(op_str, "opcode: %04x", c->opcode);
             surface = TTF_RenderText_Solid(font, op_str, color);
             font_tex = SDL_CreateTextureFromSurface(renderer, surface);
@@ -216,19 +193,12 @@ main(int argc, char* argv[]) {
             font_rect.w = str_w;
             font_rect.h = str_h;
             SDL_SetTextureBlendMode(font_tex, SDL_BLENDMODE_ADD);
-            /*
-            for (int i = 0; i < 16; i++) {
-                char v_str[20];
-                sprintf(v_str, "v[%x] = %02x", i, c->v_reg[i]);
-                v_surf[i] = TTF_RenderText_Solid(font, v_str, color);
-                v_tex[i] = SDL_CreateTextureFromSurface(renderer, v_surf[i]);
-                SDL_SetTextureBlendMode(v_tex[i], SDL_BLENDMODE_ADD);
-            }*/
             
             
             if (c->draw) {
                 SDL_LockTexture(texture, NULL, (void**)&rgba_graphics, &pitch);
-                to_rgba(c->graphics, rgba_graphics);
+                graphics_cycle(gh, c);
+                graphics_to_rgba(gh->out_pix, rgba_graphics, gh->x_out_size, gh->y_out_size);
                 SDL_UnlockTexture(texture);
                 c->draw = false;
             }
@@ -243,12 +213,6 @@ main(int argc, char* argv[]) {
         SDL_RenderClear(renderer);
         SDL_RenderCopy(renderer, texture, NULL, NULL);
         SDL_RenderCopy(renderer, font_tex, NULL, &font_rect);
-        /*
-        for (int j = 0; j < 16; j++) {
-            v_rect.y += 30;
-            SDL_RenderCopy(renderer, v_tex[j], NULL, &v_rect);
-        }
-        v_rect.y -= 30*16;*/
         SDL_RenderPresent(renderer);
     }
 
