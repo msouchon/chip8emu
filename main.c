@@ -15,18 +15,21 @@ int main(int argc, char* argv[]) {
     SDL_Renderer* renderer;
     SDL_Texture* texture;
     SDL_Event event;
-    uint32_t *rgba_graphics;
-    uint8_t *epx_graphics;
+    uint32_t* rgba_graphics;
     Uint64 ticks;
     Uint64 last_chip8_cycle;
     Uint64 last_timer_cycle;
     int pitch;
     bool running;
     chip8* c;
+    graphics_handler* gh;
 
     // Init chip8 core
     c = chip8_initialize();
     chip8_loadgame(c, argv[1]);
+
+    // Init graphics handler
+    gh = graphics_init(X_SIZE, Y_SIZE, EPX_16X);
 
     // Init SDL
     if (SDL_Init(SDL_INIT_VIDEO) < 0) {
@@ -40,7 +43,7 @@ int main(int argc, char* argv[]) {
 	}
     renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
     SDL_RenderSetLogicalSize(renderer, X_WINDOW_SIZE, Y_WINDOW_SIZE);
-    texture = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_STREAMING, X_SIZE * 2, Y_SIZE * 2);
+    texture = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_STREAMING, gh->x_out_size, gh->y_out_size);
     
     if (TTF_Init() < 0) {
         printf("TTF could not initialise, SDL Error: %s\n", SDL_GetError());
@@ -59,8 +62,6 @@ int main(int argc, char* argv[]) {
     char op_str[20];
     int str_w, str_h;
     SDL_Rect font_rect = {0, 0, 0, 0};
-
-    epx_graphics = calloc(1, X_SIZE * 2 * Y_SIZE * 2 * sizeof(*epx_graphics));
     
     while (running) {
 
@@ -184,7 +185,7 @@ int main(int argc, char* argv[]) {
             last_chip8_cycle = ticks;
 
             chip8_cycle(c);
-            
+
             sprintf(op_str, "opcode: %04x", c->opcode);
             surface = TTF_RenderText_Solid(font, op_str, color);
             font_tex = SDL_CreateTextureFromSurface(renderer, surface);
@@ -196,8 +197,8 @@ int main(int argc, char* argv[]) {
             
             if (c->draw) {
                 SDL_LockTexture(texture, NULL, (void**)&rgba_graphics, &pitch);
-                graphics_epx(c->graphics, epx_graphics, X_SIZE, Y_SIZE);
-                graphics_to_rgba(epx_graphics, rgba_graphics, X_SIZE * 2, Y_SIZE * 2);
+                graphics_cycle(gh, c);
+                graphics_to_rgba(gh->out_pix, rgba_graphics, gh->x_out_size, gh->y_out_size);
                 SDL_UnlockTexture(texture);
                 c->draw = false;
             }
