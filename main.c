@@ -29,7 +29,7 @@ int main(int argc, char* argv[]) {
     chip8_loadgame(c, argv[1]);
 
     // Init graphics handler
-    gh = graphics_init(X_SIZE, Y_SIZE, EPX_16X);
+    gh = graphics_init(X_SIZE, Y_SIZE, SCALE8X);
 
     // Init SDL
     if (SDL_Init(SDL_INIT_VIDEO) < 0) {
