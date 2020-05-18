@@ -9,7 +9,11 @@ enum graphics_settings {
     EPX_2X,
     EPX_4X,
     EPX_8X,
-    EPX_16X
+    EPX_16X,
+    SCALE2X,
+    SCALE4X,
+    SCALE8X,
+    SCALE16X
 };
 
 typedef struct {
@@ -30,5 +34,6 @@ void graphics_cycle(graphics_handler*, chip8*);
 void graphics_debug_print(chip8*);
 void graphics_to_rgba(uint8_t*, uint32_t*, int, int);
 void graphics_epx2x(graphics_handler*, uint8_t*, uint8_t*, int, int);
+void graphics_scale2x(graphics_handler*, uint8_t*, uint8_t*, int, int);
 
 #endif

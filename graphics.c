@@ -48,6 +48,36 @@ graphics_handler* graphics_init(int x_size, int y_size, int graphics_setting) {
             gh->num_buffers = 3;
             gh->x_out_size = x_size * 16;
             gh->y_out_size = y_size * 16;
+            break;
+        case SCALE2X:
+            gh->out_pix = calloc(1, x_size * 2 * y_size * 2);
+            gh->x_out_size = x_size * 2;
+            gh->y_out_size = y_size * 2;
+            break;
+        case SCALE4X:
+            gh->buffers[0] = calloc(1, x_size * 2 * y_size * 2);
+            gh->out_pix = calloc(1, x_size * 4 * y_size * 4);
+            gh->num_buffers = 1;
+            gh->x_out_size = x_size * 4;
+            gh->y_out_size = y_size * 4;
+            break;
+        case SCALE8X:
+            gh->buffers[0] = calloc(1, x_size * 2 * y_size * 2);
+            gh->buffers[1] = calloc(1, x_size * 4 * y_size * 4);
+            gh->out_pix = calloc(1, x_size * 8 * y_size * 8);
+            gh->num_buffers = 2;
+            gh->x_out_size = x_size * 8;
+            gh->y_out_size = y_size * 8;
+            break;
+        case SCALE16X:
+            gh->buffers[0] = calloc(1, x_size * 2 * y_size * 2);
+            gh->buffers[1] = calloc(1, x_size * 4 * y_size * 4);
+            gh->buffers[2] = calloc(1, x_size * 8 * y_size * 8);
+            gh->out_pix = calloc(1, x_size * 16 * y_size * 16);
+            gh->num_buffers = 3;
+            gh->x_out_size = x_size * 16;
+            gh->y_out_size = y_size * 16;
+            break;
     }
     return gh;
 }
@@ -79,6 +109,24 @@ void graphics_cycle(graphics_handler* gh, chip8* c) {
             graphics_epx2x(gh, gh->buffers[0], gh->buffers[1], gh->x_size * 2, gh->y_size * 2);
             graphics_epx2x(gh, gh->buffers[1], gh->buffers[2], gh->x_size * 4, gh->y_size * 4);
             graphics_epx2x(gh, gh->buffers[2], gh->out_pix, gh->x_size * 8, gh->y_size * 8);
+            break;
+        case SCALE2X:
+            graphics_scale2x(gh, gh->in_pix, gh->out_pix, gh->x_size, gh->y_size);
+            break;
+        case SCALE4X:
+            graphics_scale2x(gh, gh->in_pix, gh->buffers[0], gh->x_size, gh->y_size);
+            graphics_scale2x(gh, gh->buffers[0], gh->out_pix, gh->x_size * 2, gh->y_size * 2);
+            break;
+        case SCALE8X:
+            graphics_scale2x(gh, gh->in_pix, gh->buffers[0], gh->x_size, gh->y_size);
+            graphics_scale2x(gh, gh->buffers[0], gh->buffers[1], gh->x_size * 2, gh->y_size * 2);
+            graphics_scale2x(gh, gh->buffers[1], gh->out_pix, gh->x_size * 4, gh->y_size * 4);
+            break;
+        case SCALE16X:
+            graphics_scale2x(gh, gh->in_pix, gh->buffers[0], gh->x_size, gh->y_size);
+            graphics_scale2x(gh, gh->buffers[0], gh->buffers[1], gh->x_size * 2, gh->y_size * 2);
+            graphics_scale2x(gh, gh->buffers[1], gh->buffers[2], gh->x_size * 4, gh->y_size * 4);
+            graphics_scale2x(gh, gh->buffers[2], gh->out_pix, gh->x_size * 8, gh->y_size * 8);
             break;
     }
 }
@@ -168,6 +216,54 @@ void graphics_epx2x(graphics_handler* gh, uint8_t* in_pix, uint8_t* out_pix, int
                 out_pix[y       * (x_size * 2) + (x + 1)] = p;
                 out_pix[(y + 1) * (x_size * 2) +  x     ] = p;
                 out_pix[(y + 1) * (x_size * 2) + (x + 1)] = p;
+            }
+        }
+    }
+}
+
+void graphics_scale2x(graphics_handler* gh, uint8_t* in_pix, uint8_t* out_pix, int x_size, int y_size) {
+    
+    uint8_t p, a, b, c, d;
+    uint8_t *_1, *_2, *_3, *_4;
+    
+    for (int y = 0; y < y_size * 2; y += 2) {
+        for (int x = 0; x < x_size * 2; x += 2) {
+            p = in_pix[(y / 2) * x_size + (x / 2)];
+            
+            _1 = &out_pix[y * (x_size * 2) + x];
+            _2 = &out_pix[y * (x_size * 2) + (x + 1)];
+            _3 = &out_pix[(y + 1) * (x_size * 2) + x];
+            _4 = &out_pix[(y + 1) * (x_size * 2) + (x + 1)];
+
+            *_1 = p;
+            *_2 = p;
+            *_3 = p;
+            *_4 = p;
+            
+            if (y > 0) {
+                a = in_pix[((y / 2) - 1) * x_size + (x / 2)];
+            }
+            if (x < x_size * 2) {
+                b = in_pix[(y / 2) * x_size + ((x / 2) + 1)];
+            }
+            if (x > 0) {
+                c = in_pix[(y / 2) * x_size + ((x / 2) - 1)];
+            }
+            if (y < y_size * 2) {
+                d = in_pix[((y / 2) + 1) * x_size + (x / 2)];
+            }
+            
+            if ((c == a) && (c != d) && (a != b)) {
+                *_1 = a;
+            }
+            if ((a == b) && (a != c) && (b != d)) {
+                *_2 = b;
+            }
+            if ((d == c) && (d != b) && (c != a)) {
+                *_3 = c;
+            }
+            if ((b == d) && (b != a) && (d != c)) {
+                *_4 = d;
             }
         }
     }
