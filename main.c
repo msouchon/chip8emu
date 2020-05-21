@@ -8,6 +8,7 @@
 #include "global.h"
 #include "chip8.h"
 #include "graphics.h"
+#include "font.h"
 
 int main(int argc, char* argv[]) {
 
@@ -29,7 +30,7 @@ int main(int argc, char* argv[]) {
     chip8_loadgame(c, argv[1]);
 
     // Init graphics handler
-    gh = graphics_init(X_SIZE, Y_SIZE, SCALE8X);
+    gh = graphics_init(X_SIZE, Y_SIZE, SCALE2X);
 
     // Init SDL
     if (SDL_Init(SDL_INIT_VIDEO) < 0) {
@@ -62,6 +63,9 @@ int main(int argc, char* argv[]) {
     char op_str[20];
     int str_w, str_h;
     SDL_Rect font_rect = {0, 0, 0, 0};
+
+    font_handler* fh = calloc(1, sizeof(*fh));
+    font_load(renderer, fh, "arial.bmp");
     
     while (running) {
 
